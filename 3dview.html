@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Shoe Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="products.js"></script>
+  <style>/* (keep your existing styles) */</style>
+</head>
+<body>
+  <div class="viewer-wrapper">
+    <button id="show-ar-btn">Show in AR</button>
+    <model-viewer id="main-viewer" src="" ios-src="" alt="3D Shoe"
+      auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1" exposure="1"></model-viewer>
+  </div>
+  <div id="qr-container" style="display:none;">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" alt="QR Code" width="180">
+  </div>
+  <div class="navigation-controls">
+    <button class="back-btn" onclick="window.location.href='index.html'">⬅ Home</button>
+    <button class="back-btn" onclick="history.back()" style="margin-left: 10px;">⬅ Back</button>
+    <button class="back-btn" onclick="window.location.href='product.html?id=' + getParam('id')" style="margin-left: 10px;">📄 Product Page</button>
+  </div>
+
+  <script src="products.js"></script>
+  <script src="ip-detector.js"></script>
+  <script>
+    const getParam = name => new URLSearchParams(window.location.search).get(name);
+    const id = getParam("id");
+    const product = window.products?.find(p => p.id === id);
+    const viewer = document.getElementById("main-viewer");
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
+
+    if (!product) {
+      viewer.style.display = "none";
+      showARBtn.style.display = "none";
+      document.querySelector('.viewer-wrapper')
+        .insertAdjacentHTML('beforeend', `<div class="error">Product not found</div>`);
+      return;
+    }
+    
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+    const glb = `${base}models/${product.id}.glb`;
+    const usdz = `${base}models/${product.id}.usdz`;
+    viewer.src = glb;
+    viewer.setAttribute('ios-src', usdz);
+    viewer.alt = product.title;
+
+    showARBtn.addEventListener("click", () => {
+      // Create mobile-optimized AR URL using detected IP for mobile access
+      const fullArUrl = window.ipDetector ?
+        window.ipDetector.getMobileARURL(product.id) :
+        `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}/simple-mobile-ar.html?id=${product.id}`;
+
+      // For desktop users, show QR code for mobile scanning
+      if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // Generate QR code with detected IP
+        qrImage.src = window.ipDetector ?
+          window.ipDetector.generateQRCodeURL(product.id) :
+          `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(fullArUrl)}&size=180x180&ecc=M&margin=1`;
+        qrContainer.style.display = "block";
+
+        // Add instructions for mobile scanning
+        const instructions = document.createElement('div');
+        instructions.style.cssText = `
+          margin-top: 15px;
+          padding: 15px;
+          background: rgba(74, 144, 226, 0.1);
+          border-radius: 10px;
+          border: 1px solid rgba(74, 144, 226, 0.3);
+          font-size: 14px;
+          color: #333;
+          text-align: center;
+        `;
+        instructions.innerHTML = `
+          <h4 style="color: #4a90e2; margin-bottom: 10px;">📱 Mobile AR Experience</h4>
+          <p style="margin: 5px 0;">1. Open your phone's camera app</p>
+          <p style="margin: 5px 0;">2. Point at the QR code above</p>
+          <p style="margin: 5px 0;">3. Tap the notification to start AR</p>
+          <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+            ✨ Features: Real-time foot tracking, size estimation, fitting analysis
+          </p>
+          <div style="margin-top: 10px; font-size: 11px; color: #888;">
+            URL: ${fullArUrl.length > 50 ? fullArUrl.substring(0, 50) + '...' : fullArUrl}
+          </div>
+        `;
+
+        if (!document.getElementById('qr-instructions')) {
+          instructions.id = 'qr-instructions';
+          qrContainer.appendChild(instructions);
+        }
+      } else {
+        // Mobile device - redirect directly to AR
+        window.location.href = fullArUrl;
+      }
+    });
+  </script>
+</body>
+</html>

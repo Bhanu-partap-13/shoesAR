@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS AR Quick Look Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            opacity: 0.8;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .ar-button {
+            display: inline-block;
+            background: #007AFF;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+        
+        .ar-button:hover {
+            background: #0056CC;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+        }
+        
+        .ar-button:active {
+            transform: translateY(0);
+        }
+        
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .model-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .model-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .model-item .ar-button {
+            font-size: 14px;
+            padding: 10px 20px;
+            margin: 5px 0;
+        }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        .info h4 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .status.ios {
+            background: rgba(0, 122, 255, 0.2);
+            border: 1px solid rgba(0, 122, 255, 0.5);
+        }
+        
+        .status.not-ios {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">← Home</button>
+    
+    <div class="container">
+        <h1>🍎 iOS AR Quick Look Test</h1>
+        <p class="subtitle">Test AR Quick Look functionality with USDZ models</p>
+        
+        <div id="device-status" class="status"></div>
+        
+        <div class="model-grid">
+            <div class="model-item">
+                <h3>👟 Shoe 1</h3>
+                <a href="models/1.usdz" rel="ar" class="ar-button">AR Quick Look</a>
+            </div>
+            
+            <div class="model-item">
+                <h3>👟 Shoe 2</h3>
+                <a href="models/2.usdz" rel="ar" class="ar-button">AR Quick Look</a>
+            </div>
+            
+            <div class="model-item">
+                <h3>👟 Shoe 3</h3>
+                <a href="models/3.usdz" rel="ar" class="ar-button">AR Quick Look</a>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h4>📋 How to Test:</h4>
+            <ul>
+                <li><strong>iOS Safari:</strong> Tap any "AR Quick Look" button</li>
+                <li><strong>Expected:</strong> AR Quick Look should launch</li>
+                <li><strong>Requirements:</strong> iOS 12+ and Safari</li>
+                <li><strong>Fallback:</strong> If AR doesn't work, check USDZ files</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h4>🔧 Troubleshooting:</h4>
+            <ul>
+                <li>Ensure you're using Safari on iOS</li>
+                <li>Check that USDZ files exist and are valid</li>
+                <li>Make sure you're on HTTPS (required for AR)</li>
+                <li>Try refreshing the page</li>
+            </ul>
+        </div>
+        
+        <button onclick="testAllModels()" style="
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        ">🧪 Test All Models</button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Detect device and show status
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+        const statusDiv = document.getElementById('device-status');
+        
+        if (isIOS && isSafari) {
+            statusDiv.className = 'status ios';
+            statusDiv.innerHTML = '✅ iOS Safari detected - AR Quick Look should work!';
+        } else if (isIOS && !isSafari) {
+            statusDiv.className = 'status not-ios';
+            statusDiv.innerHTML = '⚠️ iOS detected but not Safari - AR Quick Look may not work';
+        } else {
+            statusDiv.className = 'status not-ios';
+            statusDiv.innerHTML = '❌ Not iOS - AR Quick Look will not work (use QR code to test on iOS)';
+        }
+        
+        // Test all models function
+        function testAllModels() {
+            const models = ['1', '2', '3'];
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h4>🧪 Testing Models...</h4>';
+            
+            models.forEach((modelId, index) => {
+                setTimeout(() => {
+                    const usdzUrl = `models/${modelId}.usdz`;
+                    
+                    // Test if USDZ file exists
+                    fetch(usdzUrl, { method: 'HEAD' })
+                        .then(response => {
+                            if (response.ok) {
+                                resultsDiv.innerHTML += `<p>✅ Model ${modelId}: USDZ file exists (${response.headers.get('content-length')} bytes)</p>`;
+                                
+                                if (isIOS && isSafari) {
+                                    // Create AR link and trigger it
+                                    const arLink = document.createElement('a');
+                                    arLink.href = usdzUrl;
+                                    arLink.rel = 'ar';
+                                    arLink.style.display = 'none';
+                                    document.body.appendChild(arLink);
+                                    
+                                    setTimeout(() => {
+                                        arLink.click();
+                                        document.body.removeChild(arLink);
+                                    }, index * 2000); // Stagger the tests
+                                }
+                            } else {
+                                resultsDiv.innerHTML += `<p>❌ Model ${modelId}: USDZ file not found (${response.status})</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            resultsDiv.innerHTML += `<p>❌ Model ${modelId}: Error loading USDZ file</p>`;
+                        });
+                }, index * 500);
+            });
+        }
+        
+        // Add click tracking for AR buttons
+        document.querySelectorAll('a[rel="ar"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                console.log('AR Quick Look triggered for:', link.href);
+                
+                if (!isIOS || !isSafari) {
+                    e.preventDefault();
+                    alert('AR Quick Look only works on iOS Safari. Current browser: ' + navigator.userAgent);
+                }
+            });
+        });
+        
+        // Log device info for debugging
+        console.log('Device Info:', {
+            userAgent: navigator.userAgent,
+            isIOS: isIOS,
+            isSafari: isSafari,
+            platform: navigator.platform,
+            vendor: navigator.vendor
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS AR Fallback</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; background: #000; }
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            background-color: transparent;
+        }
+        .ar-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <model-viewer id="model-viewer"
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  camera-controls
+                  shadow-intensity="1"
+                  auto-rotate>
+        <button slot="ar-button" class="ar-button">View in AR</button>
+    </model-viewer>
+    
+    <script>
+        const modelViewer = document.getElementById('model-viewer');
+        const urlParams = new URLSearchParams(window.location.search);
+        const modelId = urlParams.get('id') || '1';
+        
+        // Set the model source
+        modelViewer.src = `models/${modelId}.glb`;
+        
+        // iOS-specific handling
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            modelViewer.setAttribute('ios-src', `models/${modelId}.usdz`);
+        }
+    </script>
+</body>
+</html>

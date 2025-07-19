@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Shoe Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="products.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f1f;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+    }
+    .viewer-wrapper {
+      position: relative;
+      width: 90vw;
+      max-width: 600px;
+      margin: 2rem 0 1rem 0;
+    }
+    model-viewer {
+      width: 100%;
+      height: 600px;
+      background: #1a1a2a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: block;
+    }
+    #show-ar-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #show-ar-btn:hover {
+      background: linear-gradient(90deg, #4a90e2, #7ecfff);
+    }
+    #qr-container {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #qr-container p {
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .back-btn {
+      margin-top: 1rem;
+      background: #4a90e2;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .error {
+      font-size: 1.5rem;
+      color: #ff5555;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-wrapper">
+    <button id="show-ar-btn">Show in AR</button>
+    <model-viewer id="main-viewer"
+      src=""
+      ios-src=""
+      alt="3D Shoe"
+      auto-rotate
+      camera-controls
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1"
+      exposure="1">
+    </model-viewer>
+  </div>
+  <div id="qr-container">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" src="" alt="QR Code" width="180">
+  </div>
+  <div class="navigation-controls" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <button class="back-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+    <button class="back-btn" onclick="history.back()" style="margin-left: 10px;">⬅ Back</button>
+    <button class="back-btn" onclick="window.location.href='3dview.html?id=' + getParam('id')" style="margin-left: 10px;">🔍 3D View</button>
+  </div>
+
+  <script src="products.js"></script>
+  <script src="ip-detector.js"></script>
+  <script>
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+    const getParam = (name) => new URLSearchParams(window.location.search).get(name);
+    const id = getParam("id");
+    const viewer = document.getElementById("main-viewer");
+
+    // Check if we're on mobile and handle accordingly
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // Wait for products to load
+    function initializeProduct() {
+      const product = window.products?.find(p => p.id === id);
+
+      if (product) {
+        const modelUrl = `${baseUrl}models/${product.id}.glb`;
+        const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
+
+        // Set model sources
+        viewer.src = modelUrl;
+        viewer.setAttribute('ios-src', usdzUrl);
+        viewer.alt = product.title || '3D Shoe';
+
+        // Add error handling for model loading
+        viewer.addEventListener('error', (event) => {
+          console.error('Model loading error:', event);
+          document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend',
+            `<div class="error" style="color: red; text-align: center; margin-top: 20px;">
+              <p>❌ Could not load 3D model</p>
+              <p>Model: ${product.title}</p>
+              <p>File: ${modelUrl}</p>
+              <button onclick="location.reload()" style="margin-top: 10px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px;">Try Again</button>
+            </div>`
+          );
+        });
+
+        // Add loading indicator
+        viewer.addEventListener('load', () => {
+          console.log('Model loaded successfully');
+        });
+
+        // For mobile devices, add additional fallback options
+        if (isMobile) {
+          const fallbackDiv = document.createElement('div');
+          fallbackDiv.style.cssText = `
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+          `;
+
+          if (isIOS) {
+            fallbackDiv.innerHTML = `
+              <p>📱 iOS AR Options:</p>
+              <a href="${usdzUrl}" rel="ar" style="
+                display: inline-block;
+                background: #007AFF;
+                color: white;
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                margin: 5px;
+                font-size: 14px;
+              ">🚀 AR Quick Look</a>
+              <button onclick="openMobileAR('${id}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px;">📱 Web AR</button>
+            `;
+          } else {
+            fallbackDiv.innerHTML = `
+              <p>📱 Android AR Options:</p>
+              <button onclick="openSceneViewer('${id}')" style="background: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px;">Scene Viewer</button>
+              <button onclick="openMobileAR('${id}')" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px;">Mobile AR</button>
+            `;
+          }
+
+          document.querySelector('.viewer-wrapper').appendChild(fallbackDiv);
+        }
+
+      } else {
+        viewer.style.display = "none";
+        document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend',
+          `<div class="error" style="color: red; text-align: center; margin-top: 20px;">
+            <p>❌ Product not found</p>
+            <p>ID: ${id}</p>
+            <button onclick="window.location.href='index.html'" style="margin-top: 10px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px;">← Back to Home</button>
+          </div>`
+        );
+      }
+    }
+
+    // Initialize when products are loaded
+    if (window.products) {
+      initializeProduct();
+    } else {
+      // Wait for products to load
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initializeProduct, 100);
+      });
+    }
+
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
+
+    showARBtn.addEventListener("click", () => {
+      if (!product) return;
+
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      // Use simplified mobile AR experience
+      const mobileArUrl = `${baseUrl}simple-mobile-ar.html?id=${product.id}`;
+
+      // Check if user is on mobile device
+      if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // Mobile device - redirect directly to AR
+        window.location.href = mobileArUrl;
+      } else {
+        // Desktop - show QR code for mobile scanning using detected IP
+        const qrAPI = window.ipDetector ?
+          window.ipDetector.generateQRCodeURL(id) :
+          `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(mobileArUrl)}&size=180x180`;
+        qrImage.src = qrAPI;
+        qrContainer.style.display = "block";
+
+        // Add mobile scanning instructions
+        if (!document.getElementById('mobile-instructions')) {
+          const instructions = document.createElement('div');
+          instructions.id = 'mobile-instructions';
+          instructions.style.cssText = `
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(74, 144, 226, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+            text-align: center;
+          `;
+          instructions.innerHTML = `
+            <h4 style="color: #4a90e2; margin-bottom: 10px;">📱 Mobile AR Experience</h4>
+            <p style="margin: 5px 0; font-size: 14px;">1. Open your phone's camera app</p>
+            <p style="margin: 5px 0; font-size: 14px;">2. Point at the QR code above</p>
+            <p style="margin: 5px 0; font-size: 14px;">3. Tap the notification to start AR</p>
+            <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+              ✨ Features: Real-time foot tracking, size estimation, fitting analysis
+            </p>
+          `;
+          qrContainer.appendChild(instructions);
+        }
+      }
+    });
+
+    // Mobile AR functions
+    window.openMobileAR = function(productId) {
+      const mobileArUrl = `simple-mobile-ar.html?id=${productId}`;
+      window.location.href = mobileArUrl;
+    };
+
+    window.openSceneViewer = function(productId) {
+      // This will be handled by the simple-mobile-ar.html page
+      openMobileAR(productId);
+    };
+  </script>
+</body>
+</html>

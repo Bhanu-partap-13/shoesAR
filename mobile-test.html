@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile AR Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .test-button:hover {
+            background: #45a049;
+        }
+        
+        .device-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        
+        .status.warning {
+            background: rgba(255, 193, 7, 0.3);
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Mobile AR Test</h1>
+        
+        <div class="device-info">
+            <h3>Device Information</h3>
+            <div id="device-details"></div>
+        </div>
+        
+        <div id="test-results"></div>
+        
+        <h3>Test AR Experience</h3>
+        
+        <a href="simple-mobile-ar.html?id=1" class="test-button">
+            👟 Test Shoe 1 AR
+        </a>
+        
+        <a href="simple-mobile-ar.html?id=2" class="test-button">
+            👟 Test Shoe 2 AR
+        </a>
+        
+        <a href="simple-mobile-ar.html?id=3" class="test-button">
+            👟 Test Shoe 3 AR
+        </a>
+        
+        <h3>Test QR Code Flow</h3>
+        
+        <button onclick="generateQR()" class="test-button">
+            📱 Generate QR Code
+        </button>
+        
+        <div id="qr-container" style="display: none; margin: 20px 0;">
+            <img id="qr-image" style="width: 200px; height: 200px; background: white; border-radius: 10px;">
+            <p style="font-size: 12px; margin-top: 10px;">Scan this QR code with another device</p>
+        </div>
+        
+        <h3>Direct Tests</h3>
+        
+        <button onclick="testModelFiles()" class="test-button">
+            🔍 Test Model Files
+        </button>
+        
+        <button onclick="testARSupport()" class="test-button">
+            🧪 Test AR Support
+        </button>
+        
+        <a href="index.html" class="test-button" style="background: #666; margin-top: 20px;">
+            ← Back to Home
+        </a>
+    </div>
+    
+    <script>
+        // Device detection
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+        const isChrome = /Chrome/i.test(navigator.userAgent);
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        function updateDeviceInfo() {
+            const deviceDetails = document.getElementById('device-details');
+            
+            let deviceType = 'Unknown';
+            let arSupport = 'Unknown';
+            
+            if (isIOS) {
+                deviceType = 'iOS Device';
+                arSupport = isSafari ? 'AR Quick Look (Safari)' : 'Limited (Non-Safari)';
+            } else if (isAndroid) {
+                deviceType = 'Android Device';
+                arSupport = isChrome ? 'Scene Viewer (Chrome)' : 'Limited (Non-Chrome)';
+            } else {
+                deviceType = 'Desktop/Other';
+                arSupport = 'WebXR (if supported)';
+            }
+            
+            deviceDetails.innerHTML = `
+                <div><strong>Device:</strong> ${deviceType}</div>
+                <div><strong>Browser:</strong> ${navigator.userAgent.split(' ')[0]}</div>
+                <div><strong>AR Support:</strong> ${arSupport}</div>
+                <div><strong>Screen:</strong> ${window.innerWidth}x${window.innerHeight}</div>
+                <div><strong>Mobile:</strong> ${isMobile ? 'Yes' : 'No'}</div>
+            `;
+        }
+        
+        function generateQR() {
+            const qrContainer = document.getElementById('qr-container');
+            const qrImage = document.getElementById('qr-image');
+            
+            const testUrl = `${window.location.origin}/simple-mobile-ar.html?id=1`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(testUrl)}&size=200x200&ecc=M&margin=1`;
+            
+            qrImage.src = qrApiUrl;
+            qrContainer.style.display = 'block';
+        }
+        
+        async function testModelFiles() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h4>Testing Model Files...</h4>';
+            
+            const models = ['1', '2', '3'];
+            
+            for (const modelId of models) {
+                const glbUrl = `models/${modelId}.glb`;
+                const usdzUrl = `models/${modelId}.usdz`;
+                
+                try {
+                    // Test GLB file
+                    const glbResponse = await fetch(glbUrl, { method: 'HEAD' });
+                    const glbStatus = glbResponse.ok ? 'success' : 'error';
+                    const glbSize = glbResponse.headers.get('content-length');
+                    
+                    resultsDiv.innerHTML += `
+                        <div class="status ${glbStatus}">
+                            GLB Model ${modelId}: ${glbResponse.ok ? '✅' : '❌'} 
+                            ${glbSize ? `(${(glbSize/1024).toFixed(1)}KB)` : ''}
+                        </div>
+                    `;
+                    
+                    // Test USDZ file
+                    const usdzResponse = await fetch(usdzUrl, { method: 'HEAD' });
+                    const usdzStatus = usdzResponse.ok ? 'success' : 'error';
+                    const usdzSize = usdzResponse.headers.get('content-length');
+                    
+                    resultsDiv.innerHTML += `
+                        <div class="status ${usdzStatus}">
+                            USDZ Model ${modelId}: ${usdzResponse.ok ? '✅' : '❌'} 
+                            ${usdzSize ? `(${(usdzSize/1024).toFixed(1)}KB)` : ''}
+                        </div>
+                    `;
+                    
+                } catch (error) {
+                    resultsDiv.innerHTML += `
+                        <div class="status error">
+                            Model ${modelId}: ❌ Error testing files
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        async function testARSupport() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h4>Testing AR Support...</h4>';
+            
+            // Test WebXR
+            if ('xr' in navigator) {
+                try {
+                    const supported = await navigator.xr.isSessionSupported('immersive-ar');
+                    resultsDiv.innerHTML += `
+                        <div class="status ${supported ? 'success' : 'warning'}">
+                            WebXR AR: ${supported ? '✅ Supported' : '⚠️ Not supported'}
+                        </div>
+                    `;
+                } catch (error) {
+                    resultsDiv.innerHTML += `
+                        <div class="status error">
+                            WebXR AR: ❌ Error checking support
+                        </div>
+                    `;
+                }
+            } else {
+                resultsDiv.innerHTML += `
+                    <div class="status error">
+                        WebXR: ❌ Not available
+                    </div>
+                `;
+            }
+            
+            // Test camera access
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    resultsDiv.innerHTML += `
+                        <div class="status success">
+                            Camera Access: ✅ Available
+                        </div>
+                    `;
+                } catch (error) {
+                    resultsDiv.innerHTML += `
+                        <div class="status error">
+                            Camera Access: ❌ Denied or unavailable
+                        </div>
+                    `;
+                }
+            } else {
+                resultsDiv.innerHTML += `
+                    <div class="status error">
+                        Camera API: ❌ Not available
+                    </div>
+                `;
+            }
+            
+            // Test device orientation
+            if ('DeviceOrientationEvent' in window) {
+                resultsDiv.innerHTML += `
+                    <div class="status success">
+                        Device Orientation: ✅ Available
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML += `
+                    <div class="status warning">
+                        Device Orientation: ⚠️ Not available
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDeviceInfo();
+        });
+    </script>
+</body>
+</html>

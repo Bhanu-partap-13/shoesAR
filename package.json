@@ -1,0 +1,46 @@
+{
+  "name": "enhanced-shoe-ar",
+  "version": "2.0.0",
+  "description": "Enhanced Shoe AR application with MediaPipe tracking and cross-platform support",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "start-node": "npx http-server -p 8000 -c-1",
+    "install-deps": "npm install",
+    "setup": "npm run install-deps && npm run download-models",
+    "download-models": "node scripts/download-models.js",
+    "optimize-models": "node scripts/optimize-models.js",
+    "test": "npm run start",
+    "build": "npm run optimize-models",
+    "deploy": "npm run build && npm run upload"
+  },
+  "keywords": [
+    "ar",
+    "augmented-reality",
+    "shoes",
+    "mediapipe",
+    "opencv",
+    "threejs",
+    "webxr"
+  ],
+  "author": "Enhanced AR Team",
+  "license": "MIT",
+  "dependencies": {
+    "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "gltf-pipeline": "^4.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/enhanced-shoe-ar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/enhanced-shoe-ar/issues"
+  },
+  "homepage": "https://your-username.github.io/enhanced-shoe-ar/"
+}

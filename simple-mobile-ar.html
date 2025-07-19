@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Shoe AR Experience</title>
+    
+    <!-- Mobile optimization -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Model Viewer for AR -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .ar-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .ar-options {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 350px;
+            width: 90%;
+        }
+        
+        .ar-options h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .ar-options p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .ar-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .ar-button.primary {
+            background: #007AFF;
+        }
+        
+        .ar-button.secondary {
+            background: #4CAF50;
+        }
+        
+        .ar-button.tertiary {
+            background: #FF9500;
+        }
+        
+        .ar-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ar-button:active {
+            transform: translateY(0);
+        }
+        
+        .device-info {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        
+        .model-viewer-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .ar-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* iOS specific styles */
+        @supports (-webkit-touch-callout: none) {
+            .ar-options {
+                padding-bottom: env(safe-area-inset-bottom, 30px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- AR Options Screen -->
+    <div id="ar-options-screen" class="ar-container">
+        <div class="ar-options">
+            <h1 id="ar-title">👟 Shoe AR Experience</h1>
+            <p id="ar-subtitle">Choose your AR experience</p>
+            
+            <!-- iOS Options -->
+            <div id="ios-options" class="hidden">
+                <a id="quicklook-btn" class="ar-button primary" href="#" rel="ar">
+                    🚀 AR Quick Look (Native)
+                </a>
+                <button id="modelviewer-btn" class="ar-button secondary">
+                    📱 Web AR Viewer
+                </button>
+            </div>
+            
+            <!-- Android Options -->
+            <div id="android-options" class="hidden">
+                <button id="sceneviewer-btn" class="ar-button primary">
+                    🤖 Scene Viewer (Native)
+                </button>
+                <button id="webxr-btn" class="ar-button secondary">
+                    🌐 WebXR AR
+                </button>
+                <button id="modelviewer-android-btn" class="ar-button tertiary">
+                    📱 Web AR Viewer
+                </button>
+            </div>
+            
+            <!-- Fallback Options -->
+            <div id="fallback-options" class="hidden">
+                <button id="webxr-fallback-btn" class="ar-button primary">
+                    🌐 WebXR AR
+                </button>
+                <button id="modelviewer-fallback-btn" class="ar-button secondary">
+                    📱 3D Viewer
+                </button>
+            </div>
+            
+            <div class="device-info">
+                <div id="device-type">Detecting device...</div>
+                <div id="browser-info"></div>
+            </div>
+            
+            <button onclick="window.location.href='index.html'" class="ar-button" style="background: #666; margin-top: 15px;">
+                ← Back to Home
+            </button>
+        </div>
+    </div>
+    
+    <!-- Model Viewer Screen -->
+    <div id="model-viewer-screen" class="model-viewer-container hidden">
+        <button class="back-button" onclick="showOptions()">← Back</button>
+        
+        <div class="loading" id="model-loading">
+            <div class="spinner"></div>
+            <p>Loading 3D model...</p>
+        </div>
+        
+        <model-viewer id="shoe-model"
+                      ar
+                      ar-modes="webxr scene-viewer quick-look"
+                      camera-controls
+                      touch-action="pan-y"
+                      shadow-intensity="1"
+                      auto-rotate
+                      auto-rotate-delay="3000">
+            <button slot="ar-button" class="ar-button primary" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+                👆 View in AR
+            </button>
+        </model-viewer>
+        
+        <div class="ar-controls">
+            <button class="control-btn" onclick="switchModel(-1)">← Prev</button>
+            <button class="control-btn" onclick="resetModel()">Reset</button>
+            <button class="control-btn" onclick="switchModel(1)">Next →</button>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentModelId = '1';
+        let availableModels = ['1', '2', '3'];
+        let isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        let isAndroid = /Android/i.test(navigator.userAgent);
+        let isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+        let isChrome = /Chrome/i.test(navigator.userAgent);
+        
+        // Initialize the app
+        function init() {
+            // Get model ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentModelId = urlParams.get('id') || urlParams.get('model')?.match(/(\d+)\.glb/)?.[1] || '1';
+            
+            // Update device info
+            updateDeviceInfo();
+            
+            // Show appropriate options
+            showDeviceOptions();
+            
+            // Setup model viewer
+            setupModelViewer();
+        }
+        
+        function updateDeviceInfo() {
+            const deviceType = document.getElementById('device-type');
+            const browserInfo = document.getElementById('browser-info');
+            
+            if (isIOS) {
+                deviceType.textContent = '📱 iOS Device Detected';
+                browserInfo.textContent = isSafari ? '✅ Safari (AR Quick Look supported)' : '⚠️ Non-Safari browser';
+            } else if (isAndroid) {
+                deviceType.textContent = '🤖 Android Device Detected';
+                browserInfo.textContent = isChrome ? '✅ Chrome (Scene Viewer supported)' : '⚠️ Non-Chrome browser';
+            } else {
+                deviceType.textContent = '💻 Desktop/Other Device';
+                browserInfo.textContent = 'Limited AR support';
+            }
+        }
+        
+        function showDeviceOptions() {
+            // Hide all option groups
+            document.getElementById('ios-options').classList.add('hidden');
+            document.getElementById('android-options').classList.add('hidden');
+            document.getElementById('fallback-options').classList.add('hidden');
+            
+            if (isIOS) {
+                document.getElementById('ios-options').classList.remove('hidden');
+                setupIOSOptions();
+            } else if (isAndroid) {
+                document.getElementById('android-options').classList.remove('hidden');
+                setupAndroidOptions();
+            } else {
+                document.getElementById('fallback-options').classList.remove('hidden');
+                setupFallbackOptions();
+            }
+        }
+        
+        function setupIOSOptions() {
+            const quicklookBtn = document.getElementById('quicklook-btn');
+            const modelviewerBtn = document.getElementById('modelviewer-btn');
+            
+            // Setup AR Quick Look
+            const usdzUrl = `models/${currentModelId}.usdz`;
+            quicklookBtn.href = usdzUrl;
+            
+            // Check if USDZ file exists
+            fetch(usdzUrl, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok) {
+                        quicklookBtn.style.opacity = '0.5';
+                        quicklookBtn.innerHTML = '❌ AR Quick Look (USDZ not available)';
+                        quicklookBtn.onclick = (e) => {
+                            e.preventDefault();
+                            alert('USDZ file not available. Using Web AR instead.');
+                            showModelViewer();
+                        };
+                    }
+                })
+                .catch(() => {
+                    quicklookBtn.style.opacity = '0.5';
+                    quicklookBtn.innerHTML = '❌ AR Quick Look (Error)';
+                });
+            
+            modelviewerBtn.onclick = () => showModelViewer();
+        }
+        
+        function setupAndroidOptions() {
+            const sceneviewerBtn = document.getElementById('sceneviewer-btn');
+            const webxrBtn = document.getElementById('webxr-btn');
+            const modelviewerBtn = document.getElementById('modelviewer-android-btn');
+            
+            sceneviewerBtn.onclick = () => launchSceneViewer();
+            webxrBtn.onclick = () => tryWebXR();
+            modelviewerBtn.onclick = () => showModelViewer();
+        }
+        
+        function setupFallbackOptions() {
+            const webxrBtn = document.getElementById('webxr-fallback-btn');
+            const modelviewerBtn = document.getElementById('modelviewer-fallback-btn');
+            
+            webxrBtn.onclick = () => tryWebXR();
+            modelviewerBtn.onclick = () => showModelViewer();
+        }
+        
+        function setupModelViewer() {
+            const modelViewer = document.getElementById('shoe-model');
+            const loading = document.getElementById('model-loading');
+            
+            // Set model source
+            const glbUrl = `models/${currentModelId}.glb`;
+            const usdzUrl = `models/${currentModelId}.usdz`;
+            
+            modelViewer.src = glbUrl;
+            if (isIOS) {
+                modelViewer.setAttribute('ios-src', usdzUrl);
+            }
+            
+            // Handle loading events
+            modelViewer.addEventListener('load', () => {
+                loading.classList.add('hidden');
+            });
+            
+            modelViewer.addEventListener('error', (event) => {
+                loading.innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        <h3>❌ Model Loading Error</h3>
+                        <p>Could not load 3D model</p>
+                        <button onclick="showOptions()" class="ar-button secondary" style="margin-top: 15px;">
+                            ← Back to Options
+                        </button>
+                    </div>
+                `;
+            });
+        }
+        
+        function showOptions() {
+            document.getElementById('ar-options-screen').classList.remove('hidden');
+            document.getElementById('model-viewer-screen').classList.add('hidden');
+        }
+        
+        function showModelViewer() {
+            document.getElementById('ar-options-screen').classList.add('hidden');
+            document.getElementById('model-viewer-screen').classList.remove('hidden');
+            document.getElementById('model-loading').classList.remove('hidden');
+            
+            // Update model viewer
+            setupModelViewer();
+        }
+        
+        function launchSceneViewer() {
+            const glbUrl = `${window.location.origin}/models/${currentModelId}.glb`;
+            const sceneViewerUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbUrl)}&mode=ar_preferred#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(glbUrl)};end;`;
+            
+            try {
+                window.location.href = sceneViewerUrl;
+            } catch (error) {
+                alert('Scene Viewer not available. Using Web AR instead.');
+                showModelViewer();
+            }
+        }
+        
+        function tryWebXR() {
+            if ('xr' in navigator) {
+                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                    if (supported) {
+                        showModelViewer();
+                    } else {
+                        alert('WebXR AR not supported. Using 3D viewer instead.');
+                        showModelViewer();
+                    }
+                });
+            } else {
+                alert('WebXR not available. Using 3D viewer instead.');
+                showModelViewer();
+            }
+        }
+        
+        function switchModel(direction) {
+            const currentIndex = availableModels.indexOf(currentModelId);
+            let newIndex = currentIndex + direction;
+            
+            if (newIndex < 0) newIndex = availableModels.length - 1;
+            if (newIndex >= availableModels.length) newIndex = 0;
+            
+            currentModelId = availableModels[newIndex];
+            setupModelViewer();
+        }
+        
+        function resetModel() {
+            const modelViewer = document.getElementById('shoe-model');
+            modelViewer.resetTurntableRotation();
+            modelViewer.jumpCameraToGoal();
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                setupModelViewer();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

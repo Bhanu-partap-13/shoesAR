@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Setup - Mobile QR Access</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .ip-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .button:hover {
+            background: #45a049;
+        }
+        
+        .button.secondary {
+            background: #2196F3;
+        }
+        
+        .button.secondary:hover {
+            background: #1976D2;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+        
+        .status.warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid #FFC107;
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #F44336;
+        }
+        
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .qr-container img {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .instructions h4 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+        
+        .ip-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Mobile QR Access Setup</h1>
+        
+        <div class="section">
+            <h3>🔍 Detected Network Information</h3>
+            <div id="network-info">
+                <div class="status warning">Detecting network configuration...</div>
+            </div>
+            
+            <div class="ip-display" id="ip-display">
+                Detecting IP address...
+            </div>
+            
+            <button onclick="detectIP()" class="button">🔄 Refresh IP Detection</button>
+            <button onclick="testConnection()" class="button secondary">🧪 Test Connection</button>
+        </div>
+        
+        <div class="section">
+            <h3>📱 Mobile Access URLs</h3>
+            <div id="mobile-urls">
+                <div class="status warning">IP detection in progress...</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>📱 Test QR Code</h3>
+            <p>Scan this QR code with your mobile device to test the connection:</p>
+            <div class="qr-container">
+                <img id="test-qr" src="" alt="Test QR Code" style="display: none;">
+                <div id="qr-status">Generating QR code...</div>
+            </div>
+            <button onclick="generateTestQR()" class="button">🔄 Regenerate QR Code</button>
+        </div>
+        
+        <div class="section">
+            <h3>⚙️ Manual IP Configuration</h3>
+            <p>If automatic detection fails, enter your computer's IP address manually:</p>
+            <input type="text" id="manual-ip" class="ip-input" placeholder="e.g., 192.168.1.100">
+            <button onclick="setManualIP()" class="button">💾 Set IP Address</button>
+            
+            <div class="instructions">
+                <h4>How to find your IP address:</h4>
+                <ul>
+                    <li><strong>Windows:</strong> Open Command Prompt → type <code>ipconfig</code></li>
+                    <li><strong>Mac:</strong> System Preferences → Network → Advanced → TCP/IP</li>
+                    <li><strong>Linux:</strong> Terminal → type <code>ifconfig</code> or <code>ip addr</code></li>
+                </ul>
+                <p>Look for an IP address starting with 192.168.x.x, 10.x.x.x, or 172.x.x.x</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>🔧 Troubleshooting</h3>
+            <div id="troubleshooting">
+                <div class="instructions">
+                    <h4>Common Issues:</h4>
+                    <ul>
+                        <li><strong>QR code doesn't work:</strong> Make sure your phone and computer are on the same WiFi network</li>
+                        <li><strong>"Site can't be reached":</strong> Check if Windows Firewall is blocking the connection</li>
+                        <li><strong>Connection timeout:</strong> Try using your computer's IP address manually</li>
+                        <li><strong>Still not working:</strong> Try connecting your phone to the same network as your computer</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button onclick="runDiagnostics()" class="button secondary">🔍 Run Diagnostics</button>
+            <div id="diagnostics-results"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🚀 Quick Actions</h3>
+            <a href="index.html" class="button">🏠 Back to Homepage</a>
+            <a href="mobile-test.html" class="button secondary">📱 Mobile Test Page</a>
+            <button onclick="window.location.reload()" class="button">🔄 Refresh Page</button>
+        </div>
+    </div>
+    
+    <script src="ip-detector.js"></script>
+    <script>
+        let currentIP = null;
+        
+        async function detectIP() {
+            const networkInfo = document.getElementById('network-info');
+            const ipDisplay = document.getElementById('ip-display');
+            
+            networkInfo.innerHTML = '<div class="status warning">Detecting network configuration...</div>';
+            ipDisplay.textContent = 'Detecting IP address...';
+            
+            try {
+                // Try to detect IP using our IP detector
+                const detectedIP = await window.ipDetector.detectLocalIP();
+                
+                if (detectedIP) {
+                    currentIP = detectedIP;
+                    ipDisplay.textContent = detectedIP;
+                    networkInfo.innerHTML = `
+                        <div class="status success">✅ IP address detected successfully!</div>
+                        <div>Computer IP: <strong>${detectedIP}</strong></div>
+                        <div>Server URL: <strong>http://${detectedIP}:8000</strong></div>
+                    `;
+                    updateMobileURLs();
+                    generateTestQR();
+                } else {
+                    throw new Error('IP detection failed');
+                }
+            } catch (error) {
+                console.error('IP detection failed:', error);
+                networkInfo.innerHTML = `
+                    <div class="status error">❌ Automatic IP detection failed</div>
+                    <div>Please enter your IP address manually below</div>
+                `;
+                ipDisplay.textContent = 'Detection failed - use manual configuration';
+            }
+        }
+        
+        function updateMobileURLs() {
+            const mobileUrls = document.getElementById('mobile-urls');
+            
+            if (currentIP) {
+                mobileUrls.innerHTML = `
+                    <div class="status success">✅ Mobile access URLs ready</div>
+                    <div><strong>Homepage:</strong> http://${currentIP}:8000</div>
+                    <div><strong>Mobile AR:</strong> http://${currentIP}:8000/simple-mobile-ar.html?id=1</div>
+                    <div><strong>Test Page:</strong> http://${currentIP}:8000/mobile-test.html</div>
+                `;
+            } else {
+                mobileUrls.innerHTML = '<div class="status warning">IP address needed to generate URLs</div>';
+            }
+        }
+        
+        function generateTestQR() {
+            const qrImg = document.getElementById('test-qr');
+            const qrStatus = document.getElementById('qr-status');
+            
+            if (currentIP) {
+                const testURL = `http://${currentIP}:8000/mobile-test.html`;
+                const qrURL = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(testURL)}&size=200x200&ecc=M&margin=1`;
+                
+                qrImg.src = qrURL;
+                qrImg.style.display = 'block';
+                qrStatus.textContent = `QR code for: ${testURL}`;
+            } else {
+                qrImg.style.display = 'none';
+                qrStatus.textContent = 'IP address needed to generate QR code';
+            }
+        }
+        
+        function setManualIP() {
+            const manualIP = document.getElementById('manual-ip').value.trim();
+            
+            if (manualIP && /^\d+\.\d+\.\d+\.\d+$/.test(manualIP)) {
+                currentIP = manualIP;
+                
+                // Update IP detector with manual IP
+                if (window.ipDetector) {
+                    window.ipDetector.localIP = manualIP;
+                }
+                
+                document.getElementById('ip-display').textContent = manualIP;
+                document.getElementById('network-info').innerHTML = `
+                    <div class="status success">✅ IP address set manually</div>
+                    <div>Computer IP: <strong>${manualIP}</strong></div>
+                    <div>Server URL: <strong>http://${manualIP}:8000</strong></div>
+                `;
+                
+                updateMobileURLs();
+                generateTestQR();
+            } else {
+                alert('Please enter a valid IP address (e.g., 192.168.1.100)');
+            }
+        }
+        
+        async function testConnection() {
+            if (!currentIP) {
+                alert('Please detect or set an IP address first');
+                return;
+            }
+            
+            const testURL = `http://${currentIP}:8000/test-server.html`;
+            
+            try {
+                const response = await fetch(testURL, { method: 'HEAD' });
+                if (response.ok) {
+                    alert(`✅ Connection test successful!\n\nServer is accessible at:\n${testURL}`);
+                } else {
+                    alert(`❌ Connection test failed!\n\nServer returned status: ${response.status}`);
+                }
+            } catch (error) {
+                alert(`❌ Connection test failed!\n\nError: ${error.message}\n\nMake sure the server is running and firewall allows connections.`);
+            }
+        }
+        
+        async function runDiagnostics() {
+            const results = document.getElementById('diagnostics-results');
+            results.innerHTML = '<div class="status warning">Running diagnostics...</div>';
+            
+            const diagnostics = [];
+            
+            // Check if server is running
+            try {
+                const response = await fetch('/test-server.html', { method: 'HEAD' });
+                diagnostics.push(`✅ Local server is running (status: ${response.status})`);
+            } catch (error) {
+                diagnostics.push(`❌ Local server test failed: ${error.message}`);
+            }
+            
+            // Check IP detection
+            if (currentIP) {
+                diagnostics.push(`✅ IP address available: ${currentIP}`);
+            } else {
+                diagnostics.push(`❌ No IP address detected`);
+            }
+            
+            // Check network connectivity
+            try {
+                const response = await fetch('https://api.qrserver.com/v1/create-qr-code/?data=test&size=50x50', { method: 'HEAD' });
+                diagnostics.push(`✅ Internet connectivity working`);
+            } catch (error) {
+                diagnostics.push(`❌ Internet connectivity issue: ${error.message}`);
+            }
+            
+            results.innerHTML = diagnostics.map(d => `<div class="status ${d.startsWith('✅') ? 'success' : 'error'}">${d}</div>`).join('');
+        }
+        
+        // Auto-detect IP when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            detectIP();
+        });
+    </script>
+</body>
+</html>

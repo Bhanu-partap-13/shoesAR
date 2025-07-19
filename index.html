@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoes Website</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <figure class="logo">
+            <img src="img/logo.png" alt="Logo">
+        </figure>
+        <nav>
+            <ul>
+                <li><a href="index.html" style="color: inherit; text-decoration: none;">HOME</a></li>
+                <li><a href="admin.html" style="color: inherit; text-decoration: none;">ADMIN</a></li>
+                <li><a href="#" onclick="alert('Login functionality coming soon!')" style="color: inherit; text-decoration: none;">LOGIN</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="carousel">
+        <div class="list">
+            <div class="item">
+                <figure>
+                    <img src="img/3.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.01</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button onclick="addToCart('1')">Add To Cart</button>
+                        <button onclick="window.location.href='product.html?id=1'"><i class="fa-solid fa-play"></i> See More</button>
+                        <button onclick="openMobileAR('1')" style="background: #4CAF50; margin-left: 10px;">📱 Try AR</button>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <figure>
+                    <img src="img/2.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.02</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button onclick="addToCart('2')">Add To Cart</button>
+                        <button onclick="window.location.href='product.html?id=2'"><i class="fa-solid fa-play"></i> See More</button>
+                        <button onclick="openMobileAR('2')" style="background: #4CAF50; margin-left: 10px;">📱 Try AR</button>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <figure>
+                    <img src="img/1.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.03</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button onclick="addToCart('3')">Add To Cart</button>
+                        <button onclick="window.location.href='product.html?id=3'"><i class="fa-solid fa-play"></i> See More</button>
+                        <button onclick="openMobileAR('3')" style="background: #4CAF50; margin-left: 10px;">📱 Try AR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="arrows">
+            <button id="prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="next"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="indicators">
+            <div class="number">02</div>
+            <ul>
+                <li class="active"></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="footwear">
+        <div class="container footwear-flex">
+            <div class="filter-panel">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <input type="range" id="priceRange" min="0" max="250" value="250">
+                    <p>Up to $<span id="priceValue">250</span></p>
+                </div>
+                <div class="filter-group">
+                    <h4>Size</h4>
+                    <label><input type="checkbox" name="size" value="6"> 6</label>
+                    <label><input type="checkbox" name="size" value="7"> 7</label>
+                    <label><input type="checkbox" name="size" value="8"> 8</label>
+                    <label><input type="checkbox" name="size" value="9"> 9</label>
+                    <label><input type="checkbox" name="size" value="10"> 10</label>
+                    <label><input type="checkbox" name="size" value="11"> 11</label>
+                </div>
+                <div class="filter-group">
+                    <h4>Category</h4>
+                    <label><input type="checkbox" name="category" value="sport"> Sport</label>
+                    <label><input type="checkbox" name="category" value="casual"> Casual</label>
+                    <label><input type="checkbox" name="category" value="running"> Running</label>
+                    <label><input type="checkbox" name="category" value="training"> Training</label>
+                </div>
+            </div>
+            <div class="footwear-grid">
+                <!-- Footwear items will be dynamically added here -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>Email: support@nike.com</p>
+                <p>Phone: +1-800-NIKE</p>
+                <p>Address: 123 Nike Way, Beaverton, OR 97005</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Nike. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script src="products.js"></script>
+    <script src="ip-detector.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Carousel Animation Setup
+        const carousel = document.querySelector('.carousel');
+        const list = document.querySelector('.carousel .list');
+        const items = document.querySelectorAll('.carousel .list .item');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const indicators = document.querySelectorAll('.indicators ul li');
+        const numberElement = document.querySelector('.indicators .number');
+
+        let currentIndex = 0;
+        const totalItems = items.length;
+
+        // Initialize carousel
+        function initCarousel() {
+          items.forEach((item, index) => {
+            if (index === 0) {
+              item.classList.add('active');
+            }
+          });
+          updateIndicators();
+          updateNumber();
+        }
+
+        // Update indicators
+        function updateIndicators() {
+          indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
+          });
+        }
+
+        // Update number display
+        function updateNumber() {
+          numberElement.textContent = String(currentIndex + 1).padStart(2, '0');
+        }
+
+        // Show specific item
+        function showItem(index) {
+          items.forEach((item, i) => {
+            item.classList.remove('active');
+            if (i === index) {
+              item.classList.add('active');
+            }
+          });
+          currentIndex = index;
+          updateIndicators();
+          updateNumber();
+        }
+
+        // Next item
+        function nextItem() {
+          const nextIndex = (currentIndex + 1) % totalItems;
+          showItem(nextIndex);
+        }
+
+        // Previous item
+        function prevItem() {
+          const prevIndex = (currentIndex - 1 + totalItems) % totalItems;
+          showItem(prevIndex);
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', nextItem);
+        prevBtn.addEventListener('click', prevItem);
+
+        // Indicator click events
+        indicators.forEach((indicator, index) => {
+          indicator.addEventListener('click', () => showItem(index));
+        });
+
+        // Auto-play carousel
+        let autoPlayInterval = setInterval(nextItem, 5000); // Change every 5 seconds
+
+        // Pause auto-play on hover
+        carousel.addEventListener('mouseenter', () => {
+          clearInterval(autoPlayInterval);
+        });
+
+        // Resume auto-play when mouse leaves
+        carousel.addEventListener('mouseleave', () => {
+          autoPlayInterval = setInterval(nextItem, 5000);
+        });
+
+        // Initialize carousel
+        initCarousel();
+
+        // Product Grid Setup
+        const grid = document.querySelector('.footwear-grid');
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        const sizeFilters = document.querySelectorAll('input[name="size"]');
+        const categoryFilters = document.querySelectorAll('input[name="category"]');
+
+        function renderGrid(productsToRender) {
+          grid.innerHTML = '';
+          productsToRender.forEach(product => {
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const arButtonText = isMobile ? '📱 Try AR' : '📱 QR for AR';
+
+            grid.innerHTML += `
+              <div class="footwear-item" data-id="${product.id}" data-price="${product.price}" data-size="${product.size}" data-category="${product.category.toLowerCase()}">
+                <img src="${product.image}" alt="${product.title}" style="cursor:pointer;" onclick="window.location.href='product.html?id=${product.id}'">
+                <h4>${product.title}</h4>
+                <p>$${product.price}</p>
+                <p>Size: ${product.size}</p>
+                <p>Category: ${product.category}</p>
+                <div style="margin-top: 10px; display: flex; gap: 5px;">
+                  <button onclick="window.location.href='product.html?id=${product.id}'" style="
+                    flex: 1;
+                    background: #4a90e2;
+                    color: white;
+                    border: none;
+                    padding: 8px 12px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 12px;
+                  ">View Details</button>
+                  <button onclick="openMobileAR('${product.id}')" style="
+                    flex: 1;
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 8px 12px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 12px;
+                  ">${arButtonText}</button>
+                </div>
+                <div id="qr-popup-${product.id}" style="
+                  display: none;
+                  position: fixed;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  background: white;
+                  padding: 20px;
+                  border-radius: 15px;
+                  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                  z-index: 1000;
+                  text-align: center;
+                  max-width: 300px;
+                ">
+                  <h3 style="margin-bottom: 15px; color: #333;">📱 Mobile AR Experience</h3>
+                  <img id="qr-image-${product.id}" style="width: 180px; height: 180px; margin-bottom: 15px;">
+                  <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Scan with your phone's camera to try on this shoe in AR
+                  </p>
+                  <button onclick="closeQRPopup('${product.id}')" style="
+                    background: #f44336;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                  ">Close</button>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        // Mobile AR and QR code functions
+        window.openMobileAR = function(productId) {
+          const product = window.products ? window.products.find(p => p.id === productId) : null;
+          if (!product) {
+            console.error('Product not found:', productId);
+            alert('Product not found. Please try again.');
+            return;
+          }
+
+          const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+          const isAndroid = /Android/i.test(navigator.userAgent);
+
+          // Check if user is on mobile device
+          if (isMobile) {
+            // Mobile device - use simplified mobile AR experience
+            const mobileArUrl = `simple-mobile-ar.html?id=${productId}`;
+            window.location.href = mobileArUrl;
+          } else {
+            // Desktop - show QR code popup
+            const qrPopup = document.getElementById(`qr-popup-${productId}`);
+            const qrImage = document.getElementById(`qr-image-${productId}`);
+
+            if (!qrPopup || !qrImage) {
+              console.error('QR popup elements not found');
+              return;
+            }
+
+            // Generate mobile AR URL using detected IP for mobile access
+            const mobileArUrl = window.ipDetector ?
+                window.ipDetector.getMobileARURL(productId) :
+                `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}/simple-mobile-ar.html?id=${productId}`;
+
+            // Generate QR code
+            const qrAPI = window.ipDetector ?
+                window.ipDetector.generateQRCodeURL(productId) :
+                `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(mobileArUrl)}&size=180x180&ecc=M&margin=1`;
+            qrImage.src = qrAPI;
+
+            // Show popup
+            qrPopup.style.display = 'block';
+
+            // Add backdrop
+            if (!document.getElementById('qr-backdrop')) {
+              const backdrop = document.createElement('div');
+              backdrop.id = 'qr-backdrop';
+              backdrop.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+              `;
+              backdrop.onclick = () => closeQRPopup(productId);
+              document.body.appendChild(backdrop);
+            }
+          }
+        };
+
+        window.closeQRPopup = function(productId) {
+          const qrPopup = document.getElementById(`qr-popup-${productId}`);
+          const backdrop = document.getElementById('qr-backdrop');
+
+          if (qrPopup) qrPopup.style.display = 'none';
+          if (backdrop) backdrop.remove();
+        };
+
+        // Add to cart function
+        window.addToCart = function(productId) {
+          const product = window.products ? window.products.find(p => p.id === productId) : null;
+          if (product) {
+            alert(`Added ${product.title} to cart!`);
+            // Here you would typically add to cart logic
+            console.log('Added to cart:', product);
+          } else {
+            alert(`Added product ${productId} to cart!`);
+          }
+        };
+
+        function applyFilters() {
+          const maxPrice = parseInt(priceRange.value);
+          const selectedSizes = Array.from(sizeFilters)
+            .filter(filter => filter.checked)
+            .map(filter => filter.value);
+          const selectedCategories = Array.from(categoryFilters)
+            .filter(filter => filter.checked)
+            .map(filter => filter.value);
+          const filtered = window.products.filter(product => {
+            const priceMatch = product.price <= maxPrice;
+            const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(String(product.size));
+            const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category.toLowerCase());
+            return priceMatch && sizeMatch && categoryMatch;
+          });
+          renderGrid(filtered);
+        }
+
+        if (window.products && grid) {
+          renderGrid(window.products);
+          priceRange.oninput = () => {
+            priceValue.textContent = priceRange.value;
+            applyFilters();
+          };
+          sizeFilters.forEach(filter => {
+            filter.onchange = applyFilters;
+          });
+          categoryFilters.forEach(filter => {
+            filter.onchange = applyFilters;
+          });
+        }
+      });
+    </script>
+</body>
+</html>

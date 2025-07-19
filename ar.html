@@ -1,0 +1,210 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Launching AR Experience...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0f0f1f;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p>Launching AR experience...</p>
+    <p>If nothing happens, <a id="ar-link" href="#">tap here</a>.</p>
+  </div>
+
+  <script>
+    const getParam = name => new URLSearchParams(window.location.search).get(name);
+    const glbUrl = getParam("model");
+
+    if (!glbUrl) {
+      document.body.innerHTML = "<h2>❌ Model URL is missing.</h2>";
+    } else {
+      const usdzUrl = glbUrl.replace(".glb", ".usdz");
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      let arLink = "";
+
+      if (isIOS) {
+        arLink = usdzUrl;
+      } else if (isAndroid) {
+        arLink = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbUrl)}&mode=ar_preferred#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(glbUrl)};end;`;
+      } else {
+        arLink = glbUrl;
+      }
+
+      setTimeout(() => {
+        window.location.href = arLink;
+      }, 1000);
+
+      document.getElementById("ar-link").href = arLink;
+    }
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Shoe AR Fitting</title>
+
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+    <!-- OpenCV.js for additional computer vision -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+
+    <!-- Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        #videoInput {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        #canvasAR {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+        }
+
+        #threejs-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        #status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .control-button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .control-button:hover {
+            background: #45a049;
+        }
+
+        .control-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <h3>Loading AR Experience...</h3>
+        <p>Initializing MediaPipe and 3D models...</p>
+    </div>
+
+    <video id="videoInput" autoplay playsinline></video>
+    <canvas id="canvasAR"></canvas>
+    <div id="threejs-canvas"></div>
+
+    <div id="controls">
+        <button id="toggleTracking" class="control-button">Toggle Tracking</button>
+        <button id="switchModel" class="control-button">Switch Model</button>
+        <button id="resetPosition" class="control-button">Reset Position</button>
+        <br>
+        <label>Quality:
+            <select id="qualitySelect">
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </label>
+    </div>
+
+    <div id="status">
+        <div>Tracking: <span id="trackingStatus">Initializing...</span></div>
+        <div>FPS: <span id="fpsCounter">0</span></div>
+        <div>Model: <span id="currentModel">Loading...</span></div>
+        <div>Quality: <span id="qualityStatus">Medium</span></div>
+    </div>
+
+    <script src="platform-detector.js"></script>
+    <script src="performance-optimizer.js"></script>
+    <script src="model-manager.js"></script>
+    <script src="ar-features.js"></script>
+    <script src="enhanced-ar.js"></script>
+</body>
+</html>

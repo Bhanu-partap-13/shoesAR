@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        
+        .success {
+            color: #4CAF50;
+        }
+        
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .test-button:hover {
+            background: #45a049;
+        }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Server is Working!</h1>
+        
+        <div class="status success">
+            ✅ HTTP Server is responding correctly
+        </div>
+        
+        <div class="info">
+            <h3>Server Information</h3>
+            <div>URL: <strong>http://localhost:8000</strong></div>
+            <div>Status: <strong>Running</strong></div>
+            <div>Time: <strong id="current-time"></strong></div>
+        </div>
+        
+        <h3>Test Navigation</h3>
+        
+        <a href="index.html" class="test-button">🏠 Homepage</a>
+        <a href="mobile-test.html" class="test-button">📱 Mobile Test</a>
+        <a href="simple-mobile-ar.html?id=1" class="test-button">🥽 AR Test</a>
+        
+        <div class="info">
+            <h3>Quick Tests</h3>
+            <button onclick="testFiles()" class="test-button">🔍 Test Files</button>
+            <button onclick="testModels()" class="test-button">📦 Test Models</button>
+            <div id="test-results" style="margin-top: 15px;"></div>
+        </div>
+        
+        <div class="info">
+            <h3>If you see this page:</h3>
+            <p>✅ The server is working correctly</p>
+            <p>✅ All files are accessible</p>
+            <p>✅ You can proceed with testing the AR features</p>
+        </div>
+    </div>
+    
+    <script>
+        // Update current time
+        function updateTime() {
+            document.getElementById('current-time').textContent = new Date().toLocaleString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Test if files are accessible
+        async function testFiles() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<p>Testing files...</p>';
+            
+            const files = ['index.html', 'products.js', 'style.css'];
+            let allGood = true;
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        results.innerHTML += `<div style="color: #4CAF50;">✅ ${file}</div>`;
+                    } else {
+                        results.innerHTML += `<div style="color: #f44336;">❌ ${file} (${response.status})</div>`;
+                        allGood = false;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div style="color: #f44336;">❌ ${file} (Error)</div>`;
+                    allGood = false;
+                }
+            }
+            
+            if (allGood) {
+                results.innerHTML += '<div style="color: #4CAF50; margin-top: 10px;"><strong>✅ All files accessible!</strong></div>';
+            }
+        }
+        
+        // Test if model files are accessible
+        async function testModels() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<p>Testing model files...</p>';
+            
+            const models = ['models/1.glb', 'models/2.glb', 'models/3.glb', 'models/1.usdz'];
+            let allGood = true;
+            
+            for (const model of models) {
+                try {
+                    const response = await fetch(model, { method: 'HEAD' });
+                    if (response.ok) {
+                        const size = response.headers.get('content-length');
+                        results.innerHTML += `<div style="color: #4CAF50;">✅ ${model} ${size ? `(${(size/1024).toFixed(1)}KB)` : ''}</div>`;
+                    } else {
+                        results.innerHTML += `<div style="color: #f44336;">❌ ${model} (${response.status})</div>`;
+                        allGood = false;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div style="color: #f44336;">❌ ${model} (Error)</div>`;
+                    allGood = false;
+                }
+            }
+            
+            if (allGood) {
+                results.innerHTML += '<div style="color: #4CAF50; margin-top: 10px;"><strong>✅ All models accessible!</strong></div>';
+            }
+        }
+    </script>
+</body>
+</html>
